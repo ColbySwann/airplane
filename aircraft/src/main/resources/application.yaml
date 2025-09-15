@@ -3,7 +3,7 @@ spring:
     name: aircraft
 
   datasource:
-    url: jdbc:postgresql://localhost:5434/aircraft
+    url: jdbc:postgresql://localhost:5436/aircraft
     driver-class-name: org.postgresql.Driver
     username: aircraft_dev
     password: aircraft_dev12

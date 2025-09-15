@@ -1,5 +1,6 @@
 package swf.army.mil.aircraft.airplane;
 
+import jakarta.persistence.Id;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,8 +25,16 @@ public class AirplaneController {
     }
 
     @GetMapping
-    public ArrayList<Aircraft> getAllAircraft(){
+    public List<Aircraft> getAllAircraft(){
         return aircraftService.findAllAircraft();
 
     }
+
+    @GetMapping("/{id}")
+    public Aircraft getAircraft(@PathVariable Long id){
+        return aircraftService.findAircraft(id);
+    }
+
+
+
 }

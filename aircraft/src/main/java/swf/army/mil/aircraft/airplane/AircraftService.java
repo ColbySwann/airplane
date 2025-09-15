@@ -8,27 +8,26 @@ import java.util.List;
 @Service
 public class AircraftService {
 
-    private ArrayList<Aircraft> aircraftList = new ArrayList<>();
+    private final AircraftRepository aircraftRepository;
+
+    public AircraftService(AircraftRepository aircraftRepository){
+        this.aircraftRepository = aircraftRepository;
+    }
 
     public Aircraft saveAircraft(Aircraft aircraft){
-        aircraftList.add(aircraft);
-        return aircraft;
+        return aircraftRepository.save(aircraft);
     }
 
     public Aircraft findAircraft(Long id){
-        for (Aircraft aircraft: aircraftList){
-            if(aircraft.getId() == id){
-                return aircraft;
-            }
-        }
-        return null;
+       return aircraftRepository.findById(id).get();
     }
 
-    public ArrayList<Aircraft> findAllAircraft(){
-        Aircraft aircraft1 = new Aircraft(1L, "doghouse", "Snoopy");
-        Aircraft aircraft2 = new Aircraft(2L, "cathouse", "garfield");
-        aircraftList.add(aircraft1);
-        aircraftList.add(aircraft2);
-        return aircraftList;
+    public List<Aircraft> findAllAircraft(){
+        return aircraftRepository.findAll();
+    }
+
+    public List<Aircraft> removeAircraft(Long id){
+        return aircraftRepository.deleteById(id);
+
     }
 }

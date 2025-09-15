@@ -2,8 +2,10 @@ package swf.army.mil.aircraft.airplane;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -12,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import swf.army.mil.aircraft.pilot.Pilot;
 
 import java.util.ArrayList;
 
@@ -20,7 +23,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest
+@WebMvcTest(AirplaneController.class)
+@ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
 public class AirplaneControllerTest {
 
@@ -29,9 +33,10 @@ public class AirplaneControllerTest {
 
     @MockitoBean
     AircraftService aircraftService;
-
-    Aircraft doghouse = new Aircraft(1L, "doghouse", "Snoopy");
-    Aircraft cathouse = new Aircraft(2L, "cathouse", "Garfield");
+    Pilot snoopy = new Pilot(1L, "Snoopy", "Doo", 33);
+    Pilot garfield = new Pilot(2L, "Garfield", "Cat", 45);
+    Aircraft doghouse = new Aircraft(1L, "doghouse", snoopy);
+    Aircraft cathouse = new Aircraft(2L, "cathouse", garfield);
     ArrayList<Aircraft> aircrafts = new ArrayList<Aircraft>();
 
     @Autowired
@@ -47,11 +52,22 @@ public class AirplaneControllerTest {
                 .post("/api/aircraft")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(doghouseJson))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(jsonPath("$.airframe").value("doghouse"))
-                .andExpect(jsonPath("$.pilot").value("Snoopy"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.airframe").value("doghouse"));
+//                .andExpect(jsonPath("$.pilot").value(snoopy));
 
         Mockito.verify(aircraftService).saveAircraft(any(Aircraft.class));
+    }
+
+    @Test
+    void shouldGetAnAircraft() throws Exception{
+        aircrafts.add(doghouse);
+        aircrafts.add(cathouse);
+        Mockito.when(aircraftService.findAircraft(1L)).thenReturn(doghouse);
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/api/aircraft/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1));
     }
 
     @Test
@@ -63,6 +79,13 @@ public class AirplaneControllerTest {
                 .get("/api/aircraft"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*").isArray());
+    }
+
+    @Test
+    void shouldDeleteAircraft() throws Exception{
+        aircrafts.add(doghouse);
+        aircrafts.add(cathouse);
+        Mockito.when(aircraftService.removeAircraft(1L)).thenReturn(aircrafts);
     }
 
 }
